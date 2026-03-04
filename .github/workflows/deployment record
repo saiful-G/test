@@ -1,18 +1,20 @@
-- name: Create GitHub Deployment
-  uses: bobheadxi/deployments@v1
-  with:
-    step: start
-    env: production
-    token: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production   # MUST match GitHub Environment name exactly
 
-- name: Deploy to GitHub Pages
-  # your existing deploy step here
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 
-- name: Mark Deployment Success
-  if: success()
-  uses: bobheadxi/deployments@v1
-  with:
-    step: finish
-    status: success
-    env: production
-    token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - uses: actions/deploy-pages@v4
