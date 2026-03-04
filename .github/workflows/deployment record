@@ -1,20 +1,50 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Production   # MUST match GitHub Environment name exactly
+    environment: Production
 
     permissions:
       contents: read
-      pages: write
-      id-token: write
+      deployments: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/configure-pages@v4
-
-      - uses: actions/upload-pages-artifact@v3
+      - name: Start Deployment
+        uses: bobheadxi/deployments@v1
         with:
-          path: .
+          step: start
+          env: Production
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/deploy-pages@v4
+      - name: Deploy
+        run: |
+          echo "Deploying to Production..."
+          # Add your actual deployment commands here
+
+      - name: Mark Deployment Success
+        if: success()
+        uses: bobheadxi/deployments@v1
+        with:
+          step: finish
+          status: success
+          env: Production
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Mark Deployment Failure
+        if: failure()
+        uses: bobheadxi/deployments@v1
+        with:
+          step: finish
+          status: failure
+          env: Production
+          token: ${{ secrets.GITHUB_TOKEN }}
